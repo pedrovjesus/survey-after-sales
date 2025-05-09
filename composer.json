@@ -1,0 +1,15 @@
+{
+    "name": "user/survey",
+    "autoload": {
+        "psr-4": {
+            "User\\Survey\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "pedrovjesus",
+            "email": "pedroferreira161jesus@gmail.com"
+        }
+    ],
+    "require": {}
+}
