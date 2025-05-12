@@ -1,21 +1,21 @@
 <?php
-require_once __DIR__ . '/db/database.php';
-$pdo = getConnection();
+require_once __DIR__ . '/Config/configDB.php'; // <- ajustado
 
-// Lista os arquivos da pasta migrations
+// Lista os arquivos de migration
 $migrations = glob(__DIR__ . '/migrations/*.php');
-
-// Ordena para garantir que rodem na ordem certa
 sort($migrations);
 
-// Roda cada migration
+$pdo = getConnection();
+
 foreach ($migrations as $migrationFile) {
     require_once $migrationFile;
 
-    // Extrai o nome da função baseado no nome do arquivo
     $functionName = 'migrate_' . basename($migrationFile, '.php');
+
     if (function_exists($functionName)) {
         $functionName($pdo);
-        echo "Migration $functionName executada.\n";
+        echo "Migration $functionName executada com sucesso.\n";
+    } else {
+        echo "Função $functionName não encontrada.\n";
     }
 }
