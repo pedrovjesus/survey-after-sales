@@ -1,15 +1,21 @@
 {
-    "name": "user/survey",
-    "autoload": {
-        "psr-4": {
-            "User\\Survey\\": "src/"
-        }
+  "name": "whatsapp/satisfaction-survey",
+  "description": "Bot de pesquisa de satisfação via WhatsApp",
+  "autoload": {
+    "psr-4": {
+      "User\\Survey\\": "src/"
     },
-    "authors": [
-        {
-            "name": "pedrovjesus",
-            "email": "pedroferreira161jesus@gmail.com"
-        }
-    ],
-    "require": {}
+    "files": [
+      "config.php"
+    ]
+  },
+  "authors": [
+    {
+      "name": "pedrovjesus",
+      "email": "pedroferreira161jesus@gmail.com"
+    }
+  ],
+  "require": {
+    "vlucas/phpdotenv": "^5.5"
+  }
 }
