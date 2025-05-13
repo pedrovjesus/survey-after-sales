@@ -3,11 +3,8 @@
   "description": "Bot de pesquisa de satisfação via WhatsApp",
   "autoload": {
     "psr-4": {
-      "User\\Survey\\": "src/"
-    },
-    "files": [
-      "config.php"
-    ]
+      "App\\": "src/"
+    }
   },
   "authors": [
     {

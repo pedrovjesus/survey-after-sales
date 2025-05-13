@@ -1,7 +1,7 @@
 <?php
 function sendMessage($phone, $message)
 {
-    $config = require __DIR__ . '/../../config/config.php';
+    $config = require __DIR__ . '/../Config/Auth.php';
 
     $url = $config['base_url'] . '/instances/' . $config['instance_id'] . '/token/' . $config['token'] . '/send-message';
 
