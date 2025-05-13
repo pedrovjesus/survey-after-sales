@@ -1,18 +1,19 @@
 <?php
-require_once __DIR__ . '/../../db/database.php';
+require_once __DIR__ . '/../Config/configDB.php';
 require_once __DIR__ . '/../utils/questionHelper.php';
 require_once __DIR__ . '/../services/messageService.php';
 
-function handleWebhook(array $data)
+function handleIncomingMessage(array $data)
 {
     $pdo = getConnection();
+
     $phone = $data['from'] ?? null;
     $message = $data['message'] ?? null;
 
     if (!$phone || !$message)
         return;
 
-    // Buscar cliente
+    // Pega o cliente
     $stmt = $pdo->prepare("SELECT id FROM customers WHERE phone = :phone");
     $stmt->execute(['phone' => $phone]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -22,28 +23,27 @@ function handleWebhook(array $data)
 
     $customerId = $customer['id'];
 
-    // Descobre qual pergunta estamos respondendo
-    $questionId = getNextQuestionId($pdo, $customerId);
+    // Verifica a próxima pergunta
+    $question = getNextQuestion($pdo, $customerId);
 
-    if ($questionId !== null) {
-        // Grava resposta
+    if ($question) {
+        // Salva a resposta
         $stmt = $pdo->prepare("INSERT INTO responses (customer_id, question_id, answer) VALUES (:cid, :qid, :ans)");
         $stmt->execute([
             'cid' => $customerId,
-            'qid' => $questionId,
+            'qid' => $question['id'],
             'ans' => $message
         ]);
 
-        // Pega próxima pergunta
-        $nextQuestionId = getNextQuestionId($pdo, $customerId);
+        // Pega a próxima pergunta após essa
+        $nextQuestion = getNextQuestion($pdo, $customerId);
 
-        if ($nextQuestionId !== null) {
-            $stmt = $pdo->prepare("SELECT text FROM questions WHERE id = :id");
-            $stmt->execute(['id' => $nextQuestionId]);
-            $question = $stmt->fetch(PDO::FETCH_ASSOC)['text'];
-            sendMessage($phone, $question);
+        if ($nextQuestion) {
+            sendMessage($phone, $nextQuestion['text']);
         } else {
-            sendMessage($phone, "Obrigado por responder nossa pesquisa!");
+            sendMessage($phone, "Obrigado por concluir nossa pesquisa!");
         }
+    } else {
+        sendMessage($phone, "Você já concluiu a pesquisa. 😊");
     }
 }
