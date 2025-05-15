@@ -3,7 +3,7 @@ require_once __DIR__ . '/../utils/questionHelper.php';
 require_once __DIR__ . '/messageService.php';
 require_once __DIR__ . '/../Config/configDB.php';
 
-function sendNextQuestionToCustomer(string $phone)
+function sendNextQuestionToCustomer(string $phone): array
 {
     $pdo = getConnection();
 
@@ -25,8 +25,12 @@ function sendNextQuestionToCustomer(string $phone)
     $question = getNextQuestion($pdo, $customerId);
 
     if ($question) {
-        sendMessage($phone, $question['text']);
+        return sendMessage($phone, $question['text']);
     } else {
-        sendMessage($phone, "Você já respondeu todas as perguntas. Obrigado!");
+        return sendMessage($phone, "Você já respondeu todas as perguntas. Obrigado!");
     }
+
+    error_log(print_r($response, true));
+    var_dump($response);
+    die;
 }
