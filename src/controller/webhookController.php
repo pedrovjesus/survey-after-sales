@@ -10,24 +10,25 @@ function handleIncomingMessage(array $data)
     $phone = $data['from'] ?? null;
     $message = $data['message'] ?? null;
 
-    if (!$phone || !$message)
+    if (!$phone || !$message) {
+        error_log('Webhook: Dados incompletos.');
         return;
+    }
 
-    // Pega o cliente
     $stmt = $pdo->prepare("SELECT id FROM customers WHERE phone = :phone");
     $stmt->execute(['phone' => $phone]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$customer)
+    if (!$customer) {
+        error_log("Webhook: Cliente não encontrado para telefone $phone");
         return;
+    }
 
     $customerId = $customer['id'];
 
-    // Verifica a próxima pergunta
     $question = getNextQuestion($pdo, $customerId);
 
     if ($question) {
-        // Salva a resposta
         $stmt = $pdo->prepare("INSERT INTO responses (customer_id, question_id, answer) VALUES (:cid, :qid, :ans)");
         $stmt->execute([
             'cid' => $customerId,
@@ -35,7 +36,6 @@ function handleIncomingMessage(array $data)
             'ans' => $message
         ]);
 
-        // Pega a próxima pergunta após essa
         $nextQuestion = getNextQuestion($pdo, $customerId);
 
         if ($nextQuestion) {
