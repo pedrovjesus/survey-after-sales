@@ -7,13 +7,11 @@ function sendNextQuestionToCustomer(string $phone): array
 {
     $pdo = getConnection();
 
-    // Verifica se o cliente já existe
     $stmt = $pdo->prepare("SELECT id FROM customers WHERE phone = :phone");
     $stmt->execute(['phone' => $phone]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$customer) {
-        // Cria novo cliente
         $stmt = $pdo->prepare("INSERT INTO customers (phone) VALUES (:phone)");
         $stmt->execute(['phone' => $phone]);
         $customerId = $pdo->lastInsertId();
@@ -30,7 +28,4 @@ function sendNextQuestionToCustomer(string $phone): array
         return sendMessage($phone, "Você já respondeu todas as perguntas. Obrigado!");
     }
 
-    error_log(print_r($response, true));
-    var_dump($response);
-    die;
 }

@@ -11,12 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($cleanPhone) {
         $result = sendNextQuestionToCustomer($cleanPhone);
 
-        http_response_code($result['status'] ?? 500);
-        echo json_encode([
-            'message' => 'Mensagem enviada.',
-            'status' => $result['status'] ?? 'indefinido',
-            'response' => $result['body'] ?? 'sem resposta'
-        ]);
+        // Verifica se a resposta tem campo de erro da API (ex: "error" ou status != 200)
+        if (isset($result['error'])) {
+            // Retorna erro com mensagem da API
+            http_response_code(400);
+            echo json_encode([
+                'message' => 'Erro ao enviar mensagem.',
+                'error' => $result['error'],
+                'details' => $result['message'] ?? null,
+            ]);
+        } else {
+            // Sucesso no envio
+            http_response_code(200);
+            echo json_encode([
+                'message' => 'Mensagem enviada.',
+                'response' => $result,
+            ]);
+        }
     } else {
         http_response_code(400);
         echo json_encode(['error' => 'Número inválido.']);

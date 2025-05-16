@@ -10,21 +10,42 @@ function sendMessage($phone, $message): array
         'message' => $message
     ];
 
+    $clientToken = getenv('ZAPI_CLIENT_TOKEN');
+
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'client-token: ' . $clientToken,
+    ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    $responseRaw = curl_exec($ch);
 
-    if (isset($response['error'])) {
-        $httpCode = 400; 
+    if ($responseRaw === false) {
+        // Trata erro do curl
+        $error = curl_error($ch);
+        curl_close($ch);
+        // Retorna um array com erro para tratar fora
+        return [
+            'error' => 'CURL_ERROR',
+            'message' => $error,
+        ];
     }
 
-    return [
-        'body' => json_decode($response, true),
-        'status' => $httpCode
-    ];
+    curl_close($ch);
+
+    $decoded = json_decode($responseRaw, true);
+
+    if ($decoded === null) {
+        // JSON inválido ou vazio
+        return [
+            'error' => 'INVALID_RESPONSE',
+            'message' => 'Resposta da API não é um JSON válido.',
+            'raw' => $responseRaw,
+        ];
+    }
+
+    return $decoded;
 }
+
