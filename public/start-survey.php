@@ -5,15 +5,23 @@ header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($data['name']) || empty($data['phone'])) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Campos obrigatórios ausentes.',
+            'required_fields' => ['name', 'phone']
+        ]);
+        exit;
+    }
+
     $phone = $data['phone'] ?? null;
     $cleanPhone = preg_replace('/\D/', '', $phone);
 
     if ($cleanPhone) {
         $result = sendNextQuestionToCustomer($cleanPhone);
 
-        // Verifica se a resposta tem campo de erro da API (ex: "error" ou status != 200)
         if (isset($result['error'])) {
-            // Retorna erro com mensagem da API
             http_response_code(400);
             echo json_encode([
                 'message' => 'Erro ao enviar mensagem.',
