@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../utils/DebugCurl.php'; // <-- IMPORTANTE
+require_once __DIR__ . '/../utils/DebugCurl.php';
 
 function sendMessage($phone, $message): array
 {
