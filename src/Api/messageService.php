@@ -1,51 +1,56 @@
 <?php
+require_once __DIR__ . '/../utils/DebugCurl.php'; // <-- IMPORTANTE
+
 function sendMessage($phone, $message): array
 {
     $config = require __DIR__ . '/../Config/Auth.php';
 
-    $url = $config['base_url'] . '/instances/' . $config['instance_id'] . '/token/' . $config['token'] . '/send-message';
+    $url = $config['base_url'] . '/instances/' . $config['instance_id'] . '/token/' . $config['token'] . '/send-text';
 
     $data = [
         'phone' => $phone,
         'message' => $message
     ];
 
-    $clientToken = getenv('ZAPI_CLIENT_TOKEN');
+    $headers = [
+        'Content-Type: application/json',
+        'Client-Token: ' . $config['client_token'],
+    ];
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'client-token: ' . $clientToken,
-    ]);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     $responseRaw = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+
+    curl_close($ch);
+
+    debugCurl($url, $headers, $data, $responseRaw);
 
     if ($responseRaw === false) {
-        // Trata erro do curl
-        $error = curl_error($ch);
-        curl_close($ch);
-        // Retorna um array com erro para tratar fora
         return [
+            'status' => $httpCode,
             'error' => 'CURL_ERROR',
             'message' => $error,
         ];
     }
 
-    curl_close($ch);
-
     $decoded = json_decode($responseRaw, true);
 
     if ($decoded === null) {
-        // JSON inválido ou vazio
         return [
+            'status' => $httpCode,
             'error' => 'INVALID_RESPONSE',
             'message' => 'Resposta da API não é um JSON válido.',
             'raw' => $responseRaw,
         ];
     }
 
-    return $decoded;
+    return [
+        'status' => $httpCode,
+        'body' => $decoded
+    ];
 }
-
