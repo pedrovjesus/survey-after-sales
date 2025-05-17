@@ -1,13 +1,20 @@
 <?php
-require_once __DIR__ . '/../src/controllers/webhookController.php';
+require_once __DIR__ . '/../src/Config/configDB.php';
+require_once __DIR__ . '/../src/utils/questionHelper.php';
+require_once __DIR__ . '/../src/Api/messageService.php';
+require_once __DIR__ . '/../src/controller/webhookController.php';
 
-$data = json_decode(file_get_contents('php://input'), true);
 
-if ($data) {
-    handleIncomingMessage($data);
-    http_response_code(200);
-    echo json_encode(['status' => 'success']);
-} else {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'No data received']);
+header('Content-Type: application/json');
+
+$inputJSON = file_get_contents('php://input');
+$data = json_decode($inputJSON, true);
+
+if (!$data) {
+    echo json_encode(['error' => 'JSON inválido ou vazio']);
+    exit;
 }
+
+handleIncomingMessage($data);
+
+echo json_encode(['status' => 'ok']);
