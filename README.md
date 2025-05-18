@@ -3,6 +3,7 @@
 
 Este projeto é um sistema de **pesquisa automatizada via WhatsApp**. Utiliza a [Z-API](https://www.z-api.io/) para enviar e receber mensagens, permitindo interações com clientes e registro de suas respostas em um banco de dados.
 
+⚠️ Nota: Este repositório contém apenas uma parte do sistema. Por questões de confidencialidade e para preservar as regras de negócio do cliente, apenas a etapa inicial (comunicação via WhatsApp e registro de respostas) foi disponibilizada. As demais funcionalidades envolvem lógicas sensíveis e, por isso, não foram incluídas neste projeto público.
 ---
 
 ## 🚀 Funcionalidades
